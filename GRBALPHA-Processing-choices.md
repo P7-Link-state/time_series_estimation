@@ -52,3 +52,4 @@ This is a bit stupider way, one would think
 I think there is something like LDA where it tries to minimise the variance between each group while maximising the spread between two groups. That is exactly what i want, and the following is just a bad version
 ![alt text](screenshots/image-48.png)
 But it is still cooking territory. The better we remove the noise, the better the model will be i think. I am also allowed not to train on dataset that brings trouble
+
