@@ -91,4 +91,44 @@ The set azimuth is interpolated by a simple method, but the control system defin
 It even shows how the control system is easily able to catch up to the quickest section of the pass. Correction, when it is directly overhead, it is not possible to keep up
 ![alt text](screenshots/image-59.png)
 
-However,
+
+# periodic behaviour
+We can see that there is a lot of periodic behaviour. How to find how periodic it is? We can make a fft from the passes, but the fft requires the points to be uniformly distributed. I dont think it is necessary for a general discrete time fourier transformation. There is a thing called Lomb-Scargle Periodogram:
+![alt text](screenshots/image-60.png)
+It apparently did not give a sheit about the mean of the data of -130... It had auto normalise as a default, very smartly.
+
+
+
+Another idea is to estimate the noise floor from a histogram of the noise. This would completely remove the outliers, and if the amplitude of the noise is really gaussian the point in the top will be close to the real noise power.
+
+I see peaks from around 0.01 to 0.1, which corresponds to periods from 100 to 10 seconds. This seems reasonable. Now the question is whether it is possible to predict when the satellite is spinning at a specific frequency. I could save the frequency of the two largest peaks.
+
+But how would i compare the frequency to anything useful? It is just a constant during a pass, and i have no change no information of a whole pass. I could make something like:
+
+Max elevation
+Azimuth at max peak
+Mean signal strenght
+
+The upper two could maybe show that a directly overpass has a strong periodicity.
+Alternatively i could create wavelets
+
+
+The signal is just a normal sine, but the log creates peaks
+![alt text](screenshots/image-61.png)
+
+Using sliding windows to find how the frequency changes over time, a lot of not that useful information was found, but it actually seemed to work
+![alt text](screenshots/image-62.png) 
+
+Notice how the changes at a higher frequency than 0 can be seen. Maybe the window size has to go up, but it is at 100, so it is quite large..., but it is also hamming windowed, so not totally useless.
+
+I do not like that the frequency is clinging to the DC... there is a slope or mean that ruins it.
+
+Tried to do it with 300 and a 80% overlap between periodograms, and it shows something not useless.  
+![alt text](screenshots/image-63.png)
+Maybe I should try a much larger overlap to make a smoother transition between frequency components and time. This could make it possible to find out how high the probability a specific frequency spin is
+
+Out of memory...
+![alt text](screenshots/image-64.png)
+
+![alt text](screenshots/image-65.png)
+Trying to save 30 gigs in ram. I should try to delete all the shit that i do not need...
