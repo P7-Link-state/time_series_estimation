@@ -53,3 +53,42 @@ I think there is something like LDA where it tries to minimise the variance betw
 ![alt text](screenshots/image-48.png)
 But it is still cooking territory. The better we remove the noise, the better the model will be i think. I am also allowed not to train on dataset that brings trouble
 
+I did it with a threshold on a moving average, and it is working really nice.
+
+After removing the data points where it is not transmitting, i tried to see the relation of each of the features. Most of them are completely flat, which means that there is nothing to gain from making linear regression for example.
+
+![alt text](screenshots/image-49.png)
+![alt text](screenshots/image-50.png)
+![alt text](screenshots/image-51.png)
+
+
+There might be something to see from the FSPL, where accoring to the trend, there is a 2 db gain in signal strength not explained by the FSPL when the satellite is closest. If there was something like atmosphere attenuation, this is something we could see, where the signal is better than just explained by the shorter distance. 
+There is a quite clear trend that pointing error equals a lower signal. Here the points where the pointing error is below 0 should probably just die as it can change the bias.
+
+The Elevation and FSPL looks equal, as it is equal if the orbit is circular. It is.
+
+Where the noise power os biggest the signal is also biggest, but that is maybe just shit.
+
+The pointing error comes at higher elevation as the satellite is closer, but it is not due to a direct overhead pass. Instead it is due to the azimuth being slower
+![alt text](screenshots/image-52.png)
+![alt text](screenshots/image-57.png)
+![alt text](screenshots/image-53.png)
+The elevation is only ever 2 degrees off.
+
+The straight lines taking 40 seconds to fix seems like the azimuth goes from 0 to 360 the wrong way, and afterwards follow like it is no problem.
+It always happened at the top point of the specific pass. It looks like a coding error and thereby something that could be fixed.
+
+There are also mistakes happening due to the very first
+
+It looks like the waterfall plots change very quickly when the station is moving
+![alt text](screenshots/image-54.png)
+![alt text](screenshots/image-55.png)
+![alt text](screenshots/image-56.png)
+
+
+The set azimuth is interpolated by a simple method, but the control system definitely choosing the wrong way around the azimuth 0-360 change. It 
+![alt text](screenshots/image-58.png)
+It even shows how the control system is easily able to catch up to the quickest section of the pass. Correction, when it is directly overhead, it is not possible to keep up
+![alt text](screenshots/image-59.png)
+
+However,
