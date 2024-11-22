@@ -127,8 +127,18 @@ Tried to do it with 300 and a 80% overlap between periodograms, and it shows som
 ![alt text](screenshots/image-63.png)
 Maybe I should try a much larger overlap to make a smoother transition between frequency components and time. This could make it possible to find out how high the probability a specific frequency spin is
 
+
+One method to get a higher frequency resolution of the lomb scargle is to use the IQ samples to calculate it with a much higher time resolution, and then not that high frequency analysis.
+
+This is a link to someone who found the tumbling rate of a satellite, however it was easy for them, and i dont really understand how they did not give a shit about the vector from the ground station for the RF analysis.
+https://digitalcommons.usu.edu/cgi/viewcontent.cgi?article=4290&context=smallsat
+
+
 Out of memory...
 ![alt text](screenshots/image-64.png)
 
 ![alt text](screenshots/image-65.png)
 Trying to save 30 gigs in ram. I should try to delete all the shit that i do not need...
+
+
+
