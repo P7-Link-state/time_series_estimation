@@ -1,0 +1,74 @@
+VZLUSAT has a much more noisy behaviour, and that is not something that reflect the actual link state, but is something that is related to how the signal power is calculated.
+
+![alt text](screenshots/image-77.png)
+My goal is that it should the yellow lines for the whole thing
+
+There are some outliers
+![alt text](screenshots/image-76.png)
+
+Interference
+![alt text](screenshots/image-78.png)
+![alt text](screenshots/image-79.png)
+
+
+More like that the noise power is affected by the clean signal power
+![alt text](screenshots/image-80.png)
+
+
+![alt text](screenshots/image-81.png)
+
+
+There are some weird things
+![alt text](screenshots/image-82.png)
+
+
+
+I dont know why this one looks like shit
+
+Finer resolution
+![alt text](screenshots/image-83.png)
+
+Still very very noisy data. I am guessing the only smart solution is making a moving average on the data. Then it will be called the truth that a model will have to predict. It is not completely stupid, but not that sexy.
+
+
+Checking how the outliers look in the waterfall plot
+![alt text](screenshots/image-84.png)
+![alt text](screenshots/image-85.png)
+Only two that are very fucked, and should be discarded
+
+
+I do not like the noise:
+
+Rectangular window
+![alt text](screenshots/image-87.png)
+
+Hamming windowed moving average
+![alt text](screenshots/image-86.png)
+larger window
+![alt text](screenshots/image-88.png)
+
+time resolution of 0.01 and fft size 256
+![alt text](screenshots/image-89.png)
+
+The red line looks more like a real signal. I am going to make it crazier. it was not that different unfortunately
+
+I reduced the resolution to 128 and time to 0.01
+![alt text](screenshots/image-90.png)
+
+I can now see the noise. And the inteference. How large can the doppler shift be? it is never larger than 50k
+
+FD=(v/c)*f
+v=7600km/s max
+c=3*10^8 m/s
+f=437MHz
+
+Max doppler= 11kHz
+sampling rate is 250kHz
+fft resolution is obj_act[].noise_obj.fft_size
+
+If max value of the fft in valid range is not 10 times larger than the obj_act.noise, the data is an outlier and should be removed.
+
+
+The variance cannot directly be used for anything unfortunately. unless maybe no, even normalising is not doing anything....
+
+the noise could probably also be found by a histogram instead of just the average of specific bins
