@@ -96,6 +96,10 @@ It even shows how the control system is easily able to catch up to the quickest 
 We can see that there is a lot of periodic behaviour. How to find how periodic it is? We can make a fft from the passes, but the fft requires the points to be uniformly distributed. I dont think it is necessary for a general discrete time fourier transformation. There is a thing called Lomb-Scargle Periodogram:
 ![alt text](screenshots/image-60.png)
 It apparently did not give a sheit about the mean of the data of -130... It had auto normalise as a default, very smartly.
+Is there a difference if i use linear values?
+![alt text](screenshots/image-66.png)
+
+It is mostly the same, but there is a difference. It seemed more correct tbh. I also tried to multiply by 10^13 or 10000000000000, and there was no difference here. I think that other methods might not work in the same way.
 
 
 
@@ -142,3 +146,44 @@ Trying to save 30 gigs in ram. I should try to delete all the shit that i do not
 
 
 
+
+Trying manually to find the relations between the spin and the azimuth and elevation
+![alt text](screenshots/image-67.png)
+![alt text](screenshots/image-68.png)
+It somewhat looks like the passes with the most periodic behaviour happens in the two ranges 30-150 and 250-340
+![alt text](screenshots/image-69.png)
+![alt text](screenshots/image-70.png)
+
+HMMM the last one is useless.
+When is it NOT spinning? at 200 azi
+![alt text](screenshots/image-71.png)
+![alt text](screenshots/image-72.png)
+
+Is that the same axis?
+
+GRBALPHA has uncontrolled rotation
+
+https://www.aanda.org/articles/aa/full_html/2023/09/aa46182-23/aa46182-23.html
+
+"The uncontrolled rotation of GRBAlpha provides a nearly homogeneous temperature distribution within the system. The detector temperature (see Fig. 1, second picture) varies between −5 and +15°C, while the most exposed parts (e.g., the solar panels) have a temperature between −20 and +25 °C."
+
+They have a plan to always decode from it:
+
+"The interactive control uses simplex stations; telecommanding is performed via an uplink station in Bankov, near Kosice, Slovakia, while telemetry packets are received and forwarded to the console from two receiver stations located at the Piszkéstető Observatory3,4, Hungary, and in Jablonec5, Slovakia. Simplex stations eliminate the need of RF power-switching circuitry, greatly simplifying the station design, while two receiver stations provide nearly 100% packet decoding during interactive sessions, compensating for the transmission fading caused by the onboard dipole antenna"
+
+![alt text](screenshots/image-73.png)
+
+They were cooking
+![alt text](screenshots/image-74.png)
+
+My final guess is that it cannot be predicted. Im guessing the rotation is chaotic... and thats maybe the end to that.
+
+If there is a pass where there is no periodic behaviour, it can be predicted by making a cross product between the satellites velocity vector and the satellite-groundstation vector as it will give an axis perpendicular to both, which would not change anything as the antenna of GRBALPHA is a dipole
+
+Something something prediction
+https://amostech.com/TechnicalPapers/2011/NROC/SOMERS.pdf
+
+
+
+for the 78'th pass, it looks like the rotation axis of the satellite does not result in fading which means it could be possible to calculate the rotation axis in ECI coordinates (fixed point in regards to the earth)
+![alt text](screenshots/image-75.png)
