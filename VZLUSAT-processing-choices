@@ -72,3 +72,9 @@ If max value of the fft in valid range is not 10 times larger than the obj_act.n
 The variance cannot directly be used for anything unfortunately. unless maybe no, even normalising is not doing anything....
 
 the noise could probably also be found by a histogram instead of just the average of specific bins
+
+![alt text](screenshots/image-91.png)
+larger
+![alt text](screenshots/image-92.png)
+
+not that much was gained from going to 0.005, but 0.01 and 64 is my recommended value
