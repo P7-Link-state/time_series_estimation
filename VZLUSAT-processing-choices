@@ -77,4 +77,9 @@ the noise could probably also be found by a histogram instead of just the averag
 larger
 ![alt text](screenshots/image-92.png)
 
-not that much was gained from going to 0.005, but 0.01 and 64 is my recommended value
+not that much was gained from going to 0.005, but 0.01 and 32 are my recommended values
+
+LPC of order 1000 (basically AR(1000)) where weights were found from 1 pass
+![alt text](screenshots/image-93.png)
+Not too bad for such a simple model
+![alt text](screenshots/image-94.png)
