@@ -218,3 +218,9 @@ In practice it also do not make sense to calculate the signal quality 10 seconds
 What about the time aspect?
 Basically the slope for the regression part can have the slope be in time. Maybe the slope is calculated from 5 or 1000 points, Maybe this value could also be appended? In that way it can find out how much weight should be used for the prediction.
 what about the start points?
+
+Tried adding features to each point so it is not dependant on the previous indicies values
+![alt text](screenshots/image-95.png)
+![alt text](screenshots/image-96.png)
+
+What we can see is that if the points are low or the MSE is high, the prediction will be shit, and we therefore cannot trust it. This could be added for a second degree polynomial. If it does not fit the data, dont use it in the model, easy as that. We are going to get so many features
