@@ -83,3 +83,138 @@ LPC of order 1000 (basically AR(1000)) where weights were found from 1 pass
 ![alt text](screenshots/image-93.png)
 Not too bad for such a simple model
 ![alt text](screenshots/image-94.png)
+
+
+
+
+When doing Machine Learning, each point should basically work by itself. This means each point should have the information about the previous points if that information is usefull
+
+I tried to make chatten provide new ideas for features that could be calculated for each value
+Statistical Features
+Statistical measures can capture variations, trends, and spread in the data.
+
+# Rolling Statistics (e.g., Last 5 Seconds)
+
+Mean (already implemented)
+Standard deviation
+Variance
+Median
+Range (max - min)
+Interquartile range (IQR)
+Global Trends
+
+Cumulative sum
+Cumulative mean
+Skewness and Kurtosis
+
+Skewness: Measures data symmetry.
+Kurtosis: Measures whether data tails are heavy or light compared to a normal distribution.
+Change Metrics
+
+Rate of change: Difference between consecutive values.
+Percentage change: Relative rate of change compared to the previous value.
+# Frequency-Domain Features
+Signal features in the frequency domain often highlight periodicity or noise.
+
+Power Spectral Density (PSD)
+
+Quantifies the energy present at various frequency components.
+Useful for identifying dominant frequencies in the signal.
+Dominant Frequency
+
+The frequency component with the highest amplitude in the Fourier Transform.
+Harmonics
+
+The presence and strength of harmonics in the frequency spectrum.
+Signal Energy
+
+Calculated as the sum of squared values over a window.
+# Time-Series Decomposition Features
+Decompose your signal into components for feature extraction.
+
+Trend
+
+The underlying long-term progression in the data (e.g., smoothed using moving averages or polynomial fitting).
+Seasonality
+
+Extract periodic patterns (daily, weekly, etc.) using methods like STL decomposition.
+Residual
+
+The remaining part of the signal after removing trend and seasonality.
+Outlier and Event Detection
+Outlier Count
+
+Number of outliers in the last 5 seconds (e.g., using thresholds or Z-scores).
+Amplitude Threshold
+
+Count of values exceeding a certain threshold (high or low).
+Event Durations
+
+Duration of spikes, dips, or flat regions in the signal.
+# Signal Quality Features
+Features that measure the reliability or noise level of the signal.
+
+Signal-to-Noise Ratio (SNR)
+
+Ratio of signal power to noise power.
+Noise Variance
+
+Variance of the noise component.
+Entropy
+
+Shannon entropy: Measures the uncertainty or randomness in the signal.
+Signal Smoothness
+
+Metrics like Mean Absolute Difference (MAD) between consecutive samples.
+# Correlation Features
+If multiple signals are available, cross-correlation can capture relationships.
+
+Cross-Correlation
+
+Correlation between clean_sig_abs and other signals (e.g., pointing error, noise).
+Lagged Correlation
+
+Correlation between a signal and itself at different time lags.
+# Event-Based Features
+Peak Detection
+
+Count of peaks or troughs in the last 5 seconds.
+Amplitude of the highest peak.
+Peak-to-Peak Interval
+
+Time between consecutive peaks.
+Peak Symmetry
+
+Ratio of positive to negative peaks.
+Time and Context Features
+Time of Day
+
+Include the timestamp as a feature (e.g., hour of the day or day of the week) if patterns vary by time.
+Station Characteristics
+
+Include contextual information such as station_obj.dist, azimuth, or elevation to help the model.
+# Advanced Features
+Autoregressive Coefficients
+
+Fit an AR or ARIMA model to the signal and use the coefficients as features.
+Wavelet Transform Coefficients
+
+Perform wavelet decomposition to capture both time and frequency characteristics.
+Dynamic Time Warping (DTW) Distance
+
+Compare the current signal window to a template or reference signal.
+Lyapunov Exponent
+
+Measures the chaos in the signal.
+Fractal Dimension
+
+Quantifies complexity or self-similarity in the signal.
+
+
+But if i want to predict 10 seconds into the future, all the values except time, set_azimuth, set_elevation, distance are unknown (as these are deterministic and the others are measured) for the data point. The mean of the last 5 seconds must then be the mean of the 15 to 10 seconds old samples.
+
+In practice it also do not make sense to calculate the signal quality 10 seconds into the future 100 times a second. However it is also nice to have a reasonable amount of data for regression for example. It could be just be a longer time span and then weigh the samples so the newest samples are the most important.
+
+What about the time aspect?
+Basically the slope for the regression part can have the slope be in time. Maybe the slope is calculated from 5 or 1000 points, Maybe this value could also be appended? In that way it can find out how much weight should be used for the prediction.
+what about the start points?
