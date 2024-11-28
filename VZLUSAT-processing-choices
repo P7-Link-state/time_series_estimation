@@ -224,3 +224,23 @@ Tried adding features to each point so it is not dependant on the previous indic
 ![alt text](screenshots/image-96.png)
 
 What we can see is that if the points are low or the MSE is high, the prediction will be shit, and we therefore cannot trust it. This could be added for a second degree polynomial. If it does not fit the data, dont use it in the model, easy as that. We are going to get so many features
+
+
+New results rolling in
+![alt text](screenshots/image-100.png)
+with the following weights
+![alt text](screenshots/image-99.png)
+
+So the mean of the old data is apparently important. The polynomial fitting was not important.
+These were the settings
+gbr = GradientBoostingRegressor(loss='squared_error',
+                                learning_rate=0.1,
+                                n_estimators=300,
+                                max_depth=5, 
+                                random_state=23)
+
+Sidder og struggler med at have 0 ere som ikke findes i dataen
+![alt text](screenshots/image-101.png)
+Prøvede at finde fejlen i koden, men selv i variable terminalen kan jeg ikke se noget som helst. WTF
+
+Jeg skal også lige finde ud af hvordan min prediction skal være hvis jeg står et sted hvor jeg ikke har nogle tal. Der er lav chance da det er 20 sekunder, men det sker efter 20 sekunder ved vi nok ikke en fucking skid.

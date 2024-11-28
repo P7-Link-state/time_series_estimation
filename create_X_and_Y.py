@@ -16,17 +16,19 @@ def produce_dataset(obj_act, validation_split=0.1, pred_range=10):
     X_val=[]
     y_val=[]
 
+    importance = []
+    importance_val = []
     # validation_split=0.1 # 20 percent for validation
     n_train_test_sets=int(len(obj_act)*(1-validation_split))+1
     n_validation_sets=len(obj_act)-int(len(obj_act)*(1-validation_split))-1
     # print(f"train/test sets = {int(len(obj_act)*(1-validation_split))+1}"+f", validation sets = {len(obj_act)-int(len(obj_act)*(1-validation_split))-1}")
 
     for i in range(len(obj_act)):
-        prediction_time = np.arange(int(obj_act[i].time_ax[0]), int(obj_act[i].time_ax[-1]) + 1, 1)  # Prediction time points
+        prediction_time = np.arange(int(obj_act[i].time_ax[0+1])+10, int(obj_act[i].time_ax[-1]) + 1, 1)  # Prediction time points from just after the first point to the last point
 
         # Initialize arrays for linear regression
         n_points_fit = np.zeros((len(prediction_time)))
-        n_points = np.zeros((len(prediction_time)))
+        n_points = np.zeros((len(prediction_time)-pred_range))
         # coef = np.zeros((len(prediction_time)))
         # intercept = np.zeros((len(prediction_time)))
         slope_val = np.zeros((len(prediction_time)))
@@ -99,7 +101,7 @@ def produce_dataset(obj_act, validation_split=0.1, pred_range=10):
                 dist[q] =  obj_act[i].station_obj.dist[indices[0][-1]]
                 noise[q] = obj_act[i].noise_obj.noise[indices[0][-1]]
                 x_time[q]= obj_act[i].time_ax[indices[0][-1]]
-                if q>pred_range-1:
+                if q>=pred_range:
                     target[q-pred_range] = obj_act[i].target[indices[0][-1]] #saving the target of the prediction
                     n_points[q-pred_range] = np.where((time_ax > time - (1+pred_range)) & (time_ax < time - pred_range))[0].size #How many points are the one second of the prediction time means how important each point is
 
@@ -126,14 +128,18 @@ def produce_dataset(obj_act, validation_split=0.1, pred_range=10):
         features = features[pred_range:, :]
 
         # Check the shape after slicing to confirm it's correct
-        # print(f"Shape after slicing: {features.shape}")
+        # print(f"features after slicing: {features.shape}")
+        
+        # print(f"importance shape: {importance[i].shape}")
 
         if i < len(obj_act)*(1-validation_split):
             X.append(features)
             y.append(target)
+            importance.append(n_points)
         else:
             X_val.append(features)
-            y_val.append(target)    
+            y_val.append(target)
+            importance_val.append(n_points)    
 
     X = np.vstack(X)
     y = np.hstack(y)
@@ -144,11 +150,19 @@ def produce_dataset(obj_act, validation_split=0.1, pred_range=10):
     X_val_normalized = []
     for i in range(len(X_val)):
         X_val_normalized.append(scaler.transform(X_val[i]))
+        # print(f"X_val shape: {len(X_val[i])}")
     
     scaler = MinMaxScaler()
-    weights = scaler.fit_transform(n_points.reshape(-1, 1))
+    importance=np.hstack(importance)
+    importance = np.array(scaler.fit_transform(importance.reshape(-1, 1))).flatten()
+    importance_val_normalized = []
+    
 
+    for i in range(len(importance_val)):
+        # print(f"importance_val shape: {len(importance_val[i])}")
+        importance_val_normalized.append(scaler.transform(importance_val[i].reshape(-1, 1)))
     # Convert to NumPy arrays for input to the model
     y = np.array(y)
+    # print(f"importance_val_normalized shape: {len(importance_val_normalized)}")
 
-    return X_normalized, y, X_val,X_val_normalized, y_val, n_train_test_sets, n_validation_sets, weights
+    return X_normalized, y, X_val,X_val_normalized, y_val, n_train_test_sets, n_validation_sets, importance, importance_val_normalized
