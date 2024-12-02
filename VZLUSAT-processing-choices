@@ -50,6 +50,10 @@ larger window
 time resolution of 0.01 and fft size 256
 ![alt text](screenshots/image-89.png)
 
+Better moving average with padding
+![alt text](screenshots/image-113.png)
+However still many points that we dont like
+
 The red line looks more like a real signal. I am going to make it crazier. it was not that different unfortunately
 
 I reduced the resolution to 128 and time to 0.01
@@ -288,3 +292,76 @@ def _power(self, data: np.ndarray):
             power_ant = np.ones(self._fft_size) * 1e-14  # Noise floor
 
         return power_ant
+
+
+
+What i try is the following:
+![alt text](screenshots/image-105.png)
+![alt text](screenshots/image-106.png)
+
+In the second one the signal is not dripping. I dont want the drip
+
+However waterfall looks like piss, and we can see that there are nowhere 
+
+
+
+Using a window to find out when the transmitter is transmitting or not
+![alt text](screenshots/image-107.png)
+![alt text](screenshots/image-108.png)
+
+Holy fuck
+Trying to change parameters:
+changing to 3*noise power - no improvement
+![alt text](screenshots/image-109.png)
+
+Changing to smaller window size /20 instead of /10 - bit less drip
+![alt text](screenshots/image-110.png)
+
+Hamming window with window size 1/10
+
+![alt text](screenshots/image-111.png)
+
+Hamming window with window size 1/50
+![alt text](screenshots/image-112.png)
+
+
+Thinking about implementing some outlier detection, as the data has less noise now
+![alt text](screenshots/image-114.png)
+
+
+Information about the satellite
+https://www.spiedigitallibrary.org/conference-proceedings-of-spie/11530/2575862/Development-of-CubeSat-with-COTS-camera-enabling-EO-with-high/10.1117/12.2575862.full?SSO=1
+
+"Tx power is 750 mW and modulation used is MSK up to 9600 bps. Antenna type is turnstile quad monopole which provides good omnidirectional characteristic without fade outs. There is CCSDS protocol with CubeSat Space Protocol at network layer. There is also function of radio beacon transmitting at the same frequency. Power consumption of communication subsystem is 250 mW when receiving and 1800 mW when transmitting. UHF uses omnidirectional antenna."
+
+satnogs database
+https://network.satnogs.org/observations/?norad=51085
+
+data about the satellite, very interesting, i want to download, but dont know how
+https://dashboard.satnogs.org/d/L8ywE9oMz/vzlusat-2?orgId=1&from=1729144033747&to=1729213191028
+
+Mostly 4800 MSK
+ ![alt text](screenshots/image-115.png)
+
+SÅ HVORFOR FUCK ER DER 5-7 tapper? er det fordi det er en eller anden kendt pilot sekvens?
+
+
+
+
+
+Ny data - ser generelt rigtigt godt ud
+![alt text](screenshots/image-116.png)
+
+Dog er der stadig et problem ved nogle få, mindst 1. Måske kan jeg vurdere det ud fra afstanden fra moving mean? Så kan jeg fjerne de enkelte punkter eller hele passes
+![alt text](screenshots/image-117.png)
+
+
+Trying to remove outlier from distance from the moving mean, which is a bit illegal, but also very effective
+![alt text](screenshots/image-118.png)
+![alt text](screenshots/image-120.png)
+Maybe do several times?
+
+Three iterations, still not good....
+![alt text](screenshots/image-121.png)
+
+I am thinking that it can be done once and then it is okay that a lot of points die
