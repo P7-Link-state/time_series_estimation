@@ -244,3 +244,47 @@ Sidder og struggler med at have 0 ere som ikke findes i dataen
 Prøvede at finde fejlen i koden, men selv i variable terminalen kan jeg ikke se noget som helst. WTF
 
 Jeg skal også lige finde ud af hvordan min prediction skal være hvis jeg står et sted hvor jeg ikke har nogle tal. Der er lav chance da det er 20 sekunder, men det sker efter 20 sekunder ved vi nok ikke en fucking skid.
+
+
+Have a feeling that when using standard scaler instead of min max, features with a large dynamic range, noise power for example, get much larger
+
+
+
+Using doppler shift to find the interesting bins.
+![alt text](screenshots/image-102.png) should make it clearer which ones have signal and which have not
+
+![alt text](screenshots/image-103.png)
+
+KEIN
+Overhovedet ikke perfekt, men lovende
+![alt text](screenshots/image-104.png)
+
+
+def _power(self, data: np.ndarray):
+        """Calculates frequency components of absolute power based on the I/Q
+        samples in `data` and the frequency resolution of `fft_size`       
+        """
+        offset = data.size % self._fft_size
+        entries = data[:-offset].reshape((-1, self._fft_size))
+        fft = np.fft.fft(entries, axis=1) * 1/self._fft_size
+        fft = np.fft.fftshift(fft)
+        
+        signal_bandwidth =15e3 #evaluated from fft
+        max_doppler= 11e3*2
+        valid_range_bins = int(np.round(((signal_bandwidth + max_doppler) / 2) / (250e3 / self._fft_size)))
+        center_bin = self._fft_size // 2  # Ensure this is an integer
+        signal = np.mean(fft[:, center_bin - valid_range_bins : center_bin + valid_range_bins])
+        noise = np.mean(np.concatenate([fft[:, :center_bin - valid_range_bins], 
+                                 fft[:, center_bin + valid_range_bins + 1:]], axis=1))
+
+
+        # Check if the signal power is at least twice the noise power
+        if signal > 2 * noise:
+            fft = fft[np.where(signal > 2 * noise)[0]]
+            power = fft.real**2 + fft.imag**2
+            power_abs = np.mean(power / 100, axis=0)
+            power_ant = power_abs / 10**(60/10)
+        else:
+            power_ant = np.ones(self._fft_size) * 1e-14  # Noise floor
+
+        return power_ant

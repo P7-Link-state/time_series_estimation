@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import StandardScaler
+
 
 def produce_dataset(obj_act, validation_split=0.1, pred_range=10):
     
@@ -24,7 +26,7 @@ def produce_dataset(obj_act, validation_split=0.1, pred_range=10):
     # print(f"train/test sets = {int(len(obj_act)*(1-validation_split))+1}"+f", validation sets = {len(obj_act)-int(len(obj_act)*(1-validation_split))-1}")
 
     for i in range(len(obj_act)):
-        prediction_time = np.arange(int(obj_act[i].time_ax[0+1])+10, int(obj_act[i].time_ax[-1]) + 1, 1)  # Prediction time points from just after the first point to the last point
+        prediction_time = np.arange(int(obj_act[i].time_ax[0+20])+10, int(obj_act[i].time_ax[-1]) + 1, 1)  # Prediction time points from just after the 20 first point to the last point
 
         # Initialize arrays for linear regression
         n_points_fit = np.zeros((len(prediction_time)))
@@ -44,10 +46,11 @@ def produce_dataset(obj_act, validation_split=0.1, pred_range=10):
         azi = np.zeros((len(prediction_time)))
         ele = np.zeros((len(prediction_time)))
         pe = np.zeros((len(prediction_time)))
-        dist = np.zeros((len(prediction_time)))
+        fspl = np.zeros((len(prediction_time)))
         noise = np.zeros((len(prediction_time)))
         x_time = np.zeros((len(prediction_time)))
         target = np.zeros((len(prediction_time)-pred_range))
+
 
         # print(f"Prediction time: {prediction_time}")
 
@@ -68,6 +71,20 @@ def produce_dataset(obj_act, validation_split=0.1, pred_range=10):
                 # Compute weights: closer to `time` has higher weight
                 distances = np.abs(x_lin.flatten() - time)  # Distance from current `time`
                 weights = np.exp(-distances / 10)  # Exponential decay (adjust scale as needed)
+
+                mean[q] = np.mean(y_lin)
+
+                #All the classic sheit
+                azi[q] =   obj_act[i].station_obj.azimuth[indices[0][-1]]
+                ele[q] =   obj_act[i].station_obj.elevation[indices[0][-1]]
+                pe[q] =    np.mean(10*np.log10(obj_act[i].pointing_error[indices[0]])*weights)
+                fspl[q] =  obj_act[i].station_obj.fspl[indices[0][-1]]
+                noise[q] = obj_act[i].noise_obj.noise[indices[0][-1]]
+                x_time[q]= obj_act[i].time_ax[indices[0][-1]]
+                
+                if q>=pred_range:
+                    target[q-pred_range] = obj_act[i].target[indices[0][-1]] #saving the target of the prediction
+                    n_points[q-pred_range] = np.where((time_ax > time - (1+pred_range)) & (time_ax < time - pred_range))[0].size #How many points are the one second of the prediction time means how important each point is
 
                 if indices[0].size > 10: #choose how many samples are needed for the regression to be valid
                     # --- Linear Regression ---
@@ -92,18 +109,6 @@ def produce_dataset(obj_act, validation_split=0.1, pred_range=10):
                     poly_val[q] = np.mean(y_lin) #If there are not enough samples, just take the mean
                     
 
-                mean[q] = np.mean(y_lin)
-
-                #All the classic sheit
-                azi[q] =   obj_act[i].station_obj.azimuth[indices[0][-1]]
-                ele[q] =   obj_act[i].station_obj.elevation[indices[0][-1]]
-                pe[q] =    np.mean(10*np.log10(obj_act[i].pointing_error[indices[0]])*weights)
-                dist[q] =  obj_act[i].station_obj.dist[indices[0][-1]]
-                noise[q] = obj_act[i].noise_obj.noise[indices[0][-1]]
-                x_time[q]= obj_act[i].time_ax[indices[0][-1]]
-                if q>=pred_range:
-                    target[q-pred_range] = obj_act[i].target[indices[0][-1]] #saving the target of the prediction
-                    n_points[q-pred_range] = np.where((time_ax > time - (1+pred_range)) & (time_ax < time - pred_range))[0].size #How many points are the one second of the prediction time means how important each point is
 
                 
 
@@ -111,7 +116,7 @@ def produce_dataset(obj_act, validation_split=0.1, pred_range=10):
             azi   ,
             ele   ,
             pe    ,
-            dist  ,
+            fspl  ,
             noise ,
             x_time,
             mean,
@@ -121,16 +126,14 @@ def produce_dataset(obj_act, validation_split=0.1, pred_range=10):
             mse_poly,
             n_points_fit
         ], axis=1)
-        # Check original shape of features
-        # print(f"Original shape of features: {features.shape}")
+
 
         # Slice the array, ensuring that it remains 2D
-        features = features[pred_range:, :]
+        valid_indices = np.where((n_points > 10) & (target > 0))[0] # delete all the targets that have less than 10 points and if target is 0, as they are NOT important
+        features = features[valid_indices,:] 
+        target = target[valid_indices] 
+        n_points = n_points[valid_indices]
 
-        # Check the shape after slicing to confirm it's correct
-        # print(f"features after slicing: {features.shape}")
-        
-        # print(f"importance shape: {importance[i].shape}")
 
         if i < len(obj_act)*(1-validation_split):
             X.append(features)
@@ -143,9 +146,10 @@ def produce_dataset(obj_act, validation_split=0.1, pred_range=10):
 
     X = np.vstack(X)
     y = np.hstack(y)
-    X = np.squeeze(X)  # Removes dimensions of size 1
+    X = np.squeeze(X)
 
-    scaler = MinMaxScaler()
+    scaler = StandardScaler()
+    # scaler = MinMaxScaler()
     X_normalized = scaler.fit_transform(X)
     X_val_normalized = []
     for i in range(len(X_val)):
@@ -156,13 +160,13 @@ def produce_dataset(obj_act, validation_split=0.1, pred_range=10):
     importance=np.hstack(importance)
     importance = np.array(scaler.fit_transform(importance.reshape(-1, 1))).flatten()
     importance_val_normalized = []
-    
+    # print(f"importance_val values: {importance}")
 
     for i in range(len(importance_val)):
-        # print(f"importance_val shape: {len(importance_val[i])}")
+        # print(f"importance_val values: {importance_val[i].reshape(-1, 1)}")
         importance_val_normalized.append(scaler.transform(importance_val[i].reshape(-1, 1)))
     # Convert to NumPy arrays for input to the model
     y = np.array(y)
     # print(f"importance_val_normalized shape: {len(importance_val_normalized)}")
 
-    return X_normalized, y, X_val,X_val_normalized, y_val, n_train_test_sets, n_validation_sets, importance, importance_val_normalized
+    return X_normalized, y, X_val, X_val_normalized, y_val, n_train_test_sets, n_validation_sets, importance, importance_val_normalized
