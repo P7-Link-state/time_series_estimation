@@ -364,4 +364,23 @@ Maybe do several times?
 Three iterations, still not good....
 ![alt text](screenshots/image-121.png)
 
-I am thinking that it can be done once and then it is okay that a lot of points die
+I am thinking that it can be done once and then it is okay that a lot of points die. maybe squared error of 5 which is close to the noise part being as low as 2.something from the mean.
+
+If the model ends up having 3 db higher predictions than the other model in average, RMSE, it will equal a 3.3 times 3dB improvement as log2(1+something) = log10(1+something)*3.3??? NOPE, it depends on the level, so it has to be evaluated per timestep
+
+This i think makes sense to be a benchmark
+![alt text](screenshots/image-122.png)
+Just a zero order hold and a buffer. Or maybe FSPL and a buffer. Later in the presentation ML, NN and AR was shown on the same plot. I think that this is how things should be.
+
+
+If trained to have 99% of predictions under, it will have a different weight distribution than if trained for LMS. It is easier to compare if all models are trained equally
+![alt text](screenshots/image-123.png)
+![alt text](screenshots/image-124.png)
+
+Normalt er det 
+![alt text](screenshots/image-125.png)
+![alt text](screenshots/image-126.png)
+
+We make the loss function to MSE so it will average to an error of 0.
+![alt text](screenshots/image-127.png)
+![alt text](screenshots/image-128.png)

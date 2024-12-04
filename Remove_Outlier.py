@@ -1,5 +1,21 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import noisy_moose as nm
+import pickle
+import os
+from multiprocessing import Pool
+import datetime
+
+# data_files_active = os.listdir("../output/VZLUSAT/water/")
+
+# vzlusat_active = list(i for i in data_files_active if "VZLUSAT-2" in i)
+
+
+# obj_act: list[nm.prepping] = [] #: list[nm.prepping] = [] means that the variable is a list of nm.prepping objects, which makes it possible to autocomplete the methods and attributes of the nm.prepping class.C:\Users\StoreElberg\OneDrive - Aalborg Universitet\Git3\output\VZLUSAT
+
+# for i in vzlusat_active[:10]: #choose how many to load
+#     with open("../output/VZLUSAT/water/" + i, 'rb') as f:
+#         obj_act.append(pickle.loads(f.read()))
 
 # pointing error calculation
 def calculate_pointing_error(set_azimuth, set_elevation, azimuth, elevation):
@@ -33,7 +49,7 @@ def calculate_pointing_error(set_azimuth, set_elevation, azimuth, elevation):
 
 def remove_outlier(obj):
     outlier_indices = []
-    valid_range_bins = int(2 * 11e3 / (250e3 / obj.noise_obj.fft_size))  # Total valid bins for the maximum doppler shift of Â±11kHz when sampling rate is 250kHz
+    valid_range_bins = int(2 * 11e3 / (250e3 / obj.noise_obj.fft_size))  # Total valid bins for the maximum doppler shift of ±11kHz when sampling rate is 250kHz
     for i , row in enumerate(obj.noise_obj.waterfall):
         fft_data =  10*np.log10(np.squeeze(row))  # FFT data (magnitude spectrum)
         center_bin = obj.noise_obj.fft_size // 2  # Center bin of the FFT, integer division to get an actual number
@@ -55,19 +71,37 @@ def remove_outlier(obj):
     return obj[outlier_indices]#Basically deleting all the points where it was not transmitting
 
 
-def prepmovavgfunc(obj, window_size=199):
 
+# print(f"Length of list {len(obj_act)}")
+def causal_moving_average_fast(data, window_size):
+    cumsum = np.cumsum(np.insert(data, 0, 0))  # Cumulative sum
+    moving_avg = (cumsum[window_size:] - cumsum[:-window_size]) / window_size
+    return np.concatenate((data[:window_size-1], moving_avg))
+
+
+def prepmovavgfunc(obj, window_size=199):
     #first outlier removal using threshold
     idx = np.argwhere(10*np.log10(obj.noise_obj.signal_abs) > -138) #Threshold set to -138 dBm on the data without the FSPL correction
     obj=obj[idx] #Basically deleting all the points where the moving average is below the threshold
+
     #second outlier removal using peak detection
-    obj=remove_outlier(obj)
-    
-    # Calculate the target values
+    # obj_act[i]=remove_outlier(obj_act[i])
+
+    # Remove outliers from the signal a bit like cheating, i got a better idea in Create X and Y file
+    # window_size = 99
+    # moving_avg= causal_moving_average_fast(np.squeeze(obj.clean_sig_abs), window_size)
+
+    # squared_errors = (clean_sig_abs - moving_avg) ** 2  # Compute squared errors
+
+    # # removing outliers
+    # obj=obj[np.where(squared_errors < 5 )[0]]
+
+    # Calculate the target
     clean_sig_abs = np.squeeze(obj.clean_sig_abs)
+    window_size = 99
     padded_signal = np.pad(clean_sig_abs, pad_width=window_size // 2, mode='reflect')
     moving_avg = np.convolve(padded_signal, np.ones(window_size) / window_size, mode='valid')
-    time_ax_avg = obj.time_ax[:len(moving_avg)]
+    # time_ax_avg = obj.time_ax[:len(moving_avg)]
 
     # obj_act[i]=obj #delimit the object
     obj.target = moving_avg

@@ -61,7 +61,7 @@ def produce_dataset(obj_act, validation_split=0.1, pred_range=10):
             # Get indices for the specified range
             indices = np.where((time_ax > time - (20+pred_range)) & (time_ax < time - pred_range)) #20 seconds before the prediction time
             n_points_fit[q] = indices[0].size
-            
+            # print(f"Indices len: {n_points_fit[q]}")
             if indices[0].size == 0:
                 pass
             else:
@@ -127,9 +127,10 @@ def produce_dataset(obj_act, validation_split=0.1, pred_range=10):
             n_points_fit
         ], axis=1)
 
-
+        
         # Slice the array, ensuring that it remains 2D
-        valid_indices = np.where((n_points > 10) & (target > 0))[0] # delete all the targets that have less than 10 points and if target is 0, as they are NOT important
+        valid_indices = np.where((n_points > 0) & (target > 0))[0] # delete all the targets that have less than 1 points and if target is 0, as they are NOT important
+        # print(f"Valid indices: {valid_indices}")
         features = features[valid_indices,:] 
         target = target[valid_indices] 
         n_points = n_points[valid_indices]
@@ -147,6 +148,7 @@ def produce_dataset(obj_act, validation_split=0.1, pred_range=10):
     X = np.vstack(X)
     y = np.hstack(y)
     X = np.squeeze(X)
+    # print(f"X shape: {X.shape}")
 
     scaler = StandardScaler()
     # scaler = MinMaxScaler()
@@ -161,7 +163,7 @@ def produce_dataset(obj_act, validation_split=0.1, pred_range=10):
     importance = np.array(scaler.fit_transform(importance.reshape(-1, 1))).flatten()
     importance_val_normalized = []
     # print(f"importance_val values: {importance}")
-
+    
     for i in range(len(importance_val)):
         # print(f"importance_val values: {importance_val[i].reshape(-1, 1)}")
         importance_val_normalized.append(scaler.transform(importance_val[i].reshape(-1, 1)))
