@@ -155,24 +155,9 @@ def produce_dataset(obj_act, validation_split=0.1, pred_range=10):
     # print(f"X shape: {X.shape}")
 
     # scaler = StandardScaler()
-    scaler = MinMaxScaler()
-    X_normalized = scaler.fit_transform(X)
-    X_val_normalized = []
-    for i in range(len(X_val)):
-        X_val_normalized.append(scaler.transform(X_val[i]))
-        # print(f"X_val shape: {len(X_val[i])}")
     
-    scaler = MinMaxScaler()
-    importance=np.hstack(importance)
-    importance = np.array(scaler.fit_transform(importance.reshape(-1, 1))).flatten()
-    importance_val_normalized = []
-    # print(f"importance_val values: {importance}")
-    
-    for i in range(len(importance_val)):
-        # print(f"importance_val values: {importance_val[i].reshape(-1, 1)}")
-        importance_val_normalized.append(scaler.transform(importance_val[i].reshape(-1, 1)))
     # Convert to NumPy arrays for input to the model
-    y = np.array(y)
+    # y = np.array(y)
     # print(f"importance_val_normalized shape: {len(importance_val_normalized)}")
 
-    return X_normalized, y, X_val, X_val_normalized, y_val, n_train_test_sets, n_validation_sets, importance, importance_val_normalized
+    return X, y, X_val, y_val, n_train_test_sets, n_validation_sets, importance, importance_val
