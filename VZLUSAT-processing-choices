@@ -384,3 +384,14 @@ Normalt er det
 We make the loss function to MSE so it will average to an error of 0.
 ![alt text](screenshots/image-127.png)
 ![alt text](screenshots/image-128.png)
+
+
+
+145 training sets
+35 validation sets
+
+30 seconds load and disregard outliers
+5 minutes produce datasets
+3 minutes gradient boosting
+0.1 seconds LGBM
+10 seconds Random forrest

@@ -50,7 +50,7 @@ def produce_dataset(obj_act, validation_split=0.1, pred_range=10):
         noise = np.zeros((len(prediction_time)))
         x_time = np.zeros((len(prediction_time)))
         target = np.zeros((len(prediction_time)-pred_range))
-
+        measurement= np.zeros((len(prediction_time)))
 
         # print(f"Prediction time: {prediction_time}")
 
@@ -61,8 +61,10 @@ def produce_dataset(obj_act, validation_split=0.1, pred_range=10):
             # Get indices for the specified range
             indices = np.where((time_ax > time - (20+pred_range)) & (time_ax < time - pred_range)) #20 seconds before the prediction time
             n_points_fit[q] = indices[0].size
+            
+            last_second_indices = np.where((time_ax > time - (1+pred_range)) & (time_ax < time-pred_range)) # last second before the prediction time
             # print(f"Indices len: {n_points_fit[q]}")
-            if indices[0].size == 0:
+            if last_second_indices[0].size == 0:
                 pass
             else:
                 x_lin = np.array(obj_act[i].time_ax[indices[0]]).reshape(-1, 1)  # Reshape for sklearn
@@ -79,11 +81,12 @@ def produce_dataset(obj_act, validation_split=0.1, pred_range=10):
                 ele[q] =   obj_act[i].station_obj.elevation[indices[0][-1]]
                 pe[q] =    np.mean(10*np.log10(obj_act[i].pointing_error[indices[0]])*weights)
                 fspl[q] =  obj_act[i].station_obj.fspl[indices[0][-1]]
-                noise[q] = obj_act[i].noise_obj.noise[indices[0][-1]]
-                x_time[q]= obj_act[i].time_ax[indices[0][-1]]
-                
+                noise[q] = np.mean(np.log10(obj_act[i].noise_obj.noise[last_second_indices[0]]))
+                x_time[q] = obj_act[i].time_ax[indices[0][-1]]
+                measurement[q]= np.mean(obj_act[i].clean_sig_abs[last_second_indices[0]])
+
                 if q>=pred_range:
-                    target[q-pred_range] = obj_act[i].target[indices[0][-1]] #saving the target of the prediction
+                    target[q-pred_range] = np.mean(obj_act[i].target[last_second_indices[0]]) #saving the target of the prediction
                     n_points[q-pred_range] = np.where((time_ax > time - (1+pred_range)) & (time_ax < time - pred_range))[0].size #How many points are the one second of the prediction time means how important each point is
 
                 if indices[0].size > 10: #choose how many samples are needed for the regression to be valid
@@ -124,12 +127,13 @@ def produce_dataset(obj_act, validation_split=0.1, pred_range=10):
             mse_slope,
             poly_val,
             mse_poly,
-            n_points_fit
+            n_points_fit,
+            measurement
         ], axis=1)
 
-        
+        x_time=x_time[:-pred_range]
         # Slice the array, ensuring that it remains 2D
-        valid_indices = np.where((n_points > 0) & (target > 0))[0] # delete all the targets that have less than 1 points and if target is 0, as they are NOT important
+        valid_indices = np.where((n_points > 0) & (target > 0) & (x_time > 0))[0] # delete all the targets that have less than 1 points and if target is 0, as they are NOT important
         # print(f"Valid indices: {valid_indices}")
         features = features[valid_indices,:] 
         target = target[valid_indices] 
@@ -145,13 +149,13 @@ def produce_dataset(obj_act, validation_split=0.1, pred_range=10):
             y_val.append(target)
             importance_val.append(n_points)    
 
-    X = np.vstack(X)
-    y = np.hstack(y)
-    X = np.squeeze(X)
+    # X = np.vstack(X)
+    # y = np.hstack(y)
+    # X = np.squeeze(X)
     # print(f"X shape: {X.shape}")
 
-    scaler = StandardScaler()
-    # scaler = MinMaxScaler()
+    # scaler = StandardScaler()
+    scaler = MinMaxScaler()
     X_normalized = scaler.fit_transform(X)
     X_val_normalized = []
     for i in range(len(X_val)):
