@@ -395,3 +395,16 @@ We make the loss function to MSE so it will average to an error of 0.
 3 minutes gradient boosting
 0.1 seconds LGBM
 10 seconds Random forrest
+
+15 minutes for a very simple ARIMA calculation, so i gave up and changed to LPC, which is just AR
+For LPC it takes 0.8 seconds due to matrix calculation instead of for loops
+
+If tweaking the value by 10%, we achieved something that shows a rather promising reason that we have to allign the fuckers.
+![alt text](screenshots/image-129.png)
+
+It could be MAE, as it is easy.
+
+Another interesting thing could be to compare the errors in regards to time. It is easy to do. How does it handle the first 30 seconds compared to the middle ones?
+
+I did differencing on LPC or AR(20) and d=1, and it just works
+![alt text](screenshots/image-130.png)
