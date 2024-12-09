@@ -408,3 +408,10 @@ Another interesting thing could be to compare the errors in regards to time. It 
 
 I did differencing on LPC or AR(20) and d=1, and it just works
 ![alt text](screenshots/image-130.png)
+
+Mean error adjustment
+![alt text](screenshots/image-134.png)
+
+Median error adjustment
+![alt text](screenshots/image-133.png)
+![alt text](screenshots/image-132.png)
