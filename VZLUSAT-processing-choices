@@ -415,3 +415,16 @@ Mean error adjustment
 Median error adjustment
 ![alt text](screenshots/image-133.png)
 ![alt text](screenshots/image-132.png)
+
+
+New way to discard passes:
+![alt text](screenshots/image-135.png)
+
+If there are more than 150 points, it means that it is interference. I will have to plot these to find out if it is correct
+
+
+if taking out the passes with the lowest values we avoid these
+![alt text](screenshots/image-136.png)
+but it also removes many of these
+![alt text](screenshots/image-137.png)
+which are due to pointing error, and not due to the interference. 

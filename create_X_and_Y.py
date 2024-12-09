@@ -95,7 +95,7 @@ def produce_dataset(obj_act, validation_split=0.1, pred_range=10):
                     model.fit(x_lin, y_lin, sample_weight=weights)
                     
                     # Save model outputs
-                    slope_val[q] = model.coef_[0] * (time + pred_range) + model.intercept_
+                    slope_val[q] = model.coef_[0] * (time) + model.intercept_
                     y_pred = model.predict(x_lin)
                     mse_slope[q] = mean_squared_error(y_lin, y_pred)
 
@@ -105,7 +105,7 @@ def produce_dataset(obj_act, validation_split=0.1, pred_range=10):
 
                     # Polynomial prediction for the same points
                     poly_pred = np.polyval(poly, x_lin_flat)
-                    poly_val[q] = np.polyval(poly, time + pred_range)  # Prediction at (time + pred_range)
+                    poly_val[q] = np.polyval(poly, time)  # Prediction at (time + pred_range)
                     mse_poly[q] = mean_squared_error(y_lin, poly_pred)
                 else:
                     slope_val[q] = np.mean(y_lin) #If there are not enough samples, just take the mean
