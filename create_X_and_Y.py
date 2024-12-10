@@ -8,7 +8,7 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import StandardScaler
 
 
-def produce_dataset(obj_act, validation_split=0.1, pred_range=10):
+def produce_dataset(obj_act, test_split=0.1, pred_range=10):
     
     pred_range = int(pred_range)  # Prediction range in seconds must be an integer.
     # Initialize lists for features (X) and targets (y)
@@ -19,10 +19,10 @@ def produce_dataset(obj_act, validation_split=0.1, pred_range=10):
     y_val=[]
 
     importance = []
-    importance_val = []
+    importance_test = []
     # validation_split=0.1 # 20 percent for validation
-    n_train_test_sets=int(len(obj_act)*(1-validation_split))+1
-    n_validation_sets=len(obj_act)-int(len(obj_act)*(1-validation_split))-1
+    n_train_val_sets=int(len(obj_act)*(1-test_split))+1
+    n_test_sets=len(obj_act)-int(len(obj_act)*(1-test_split))-1
     # print(f"train/test sets = {int(len(obj_act)*(1-validation_split))+1}"+f", validation sets = {len(obj_act)-int(len(obj_act)*(1-validation_split))-1}")
 
     for i in range(len(obj_act)):
@@ -140,14 +140,14 @@ def produce_dataset(obj_act, validation_split=0.1, pred_range=10):
         n_points = n_points[valid_indices]
 
 
-        if i < len(obj_act)*(1-validation_split):
+        if i < len(obj_act)*(1-test_split):
             X.append(features)
             y.append(target)
             importance.append(n_points)
         else:
             X_val.append(features)
             y_val.append(target)
-            importance_val.append(n_points)    
+            importance_test.append(n_points)    
 
     # X = np.vstack(X)
     # y = np.hstack(y)
@@ -160,4 +160,4 @@ def produce_dataset(obj_act, validation_split=0.1, pred_range=10):
     # y = np.array(y)
     # print(f"importance_val_normalized shape: {len(importance_val_normalized)}")
 
-    return X, y, X_val, y_val, n_train_test_sets, n_validation_sets, importance, importance_val
+    return X, y, X_val, y_val, n_train_val_sets, n_test_sets, importance, importance_test
