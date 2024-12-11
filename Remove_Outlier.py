@@ -47,7 +47,7 @@ def calculate_pointing_error(set_azimuth, set_elevation, azimuth, elevation):
     pointing_error_deg = np.degrees(pointing_error_rad)
     return pointing_error_deg
 
-def remove_outlier(obj):
+def remove_outlier(obj,peak_level=5):
     outlier_indices = []
     # valid_range_bins = int(2 * 11e3 / (250e3 / obj.noise_obj.fft_size))  # Total valid bins for the maximum doppler shift of Â±11kHz when sampling rate is 250kHz
     signal_bandwidth =10e3 #evaluated from fft
@@ -92,7 +92,7 @@ def remove_outlier(obj):
         # plt.scatter(np.concatenate((obj.noise_obj.freqs[:valid_min], obj.noise_obj.freqs[valid_max:])),invalid_fft_values,label="Signal power to noise power")
         # plt.show()
 
-        if (signal_power-noise_power>5):
+        if (signal_power-noise_power>peak_level):
             outlier_indices.append(i) #If the peak is gucci, then we keep it
         
     
@@ -116,13 +116,23 @@ def causal_moving_average_fast(data, window_size):
     return np.concatenate((data[:window_size-1], moving_avg))
 
 
-def prepmovavgfunc(obj, window_size=199):
+def prepmovavgfunc(obj,signal_threshold=-138,   peak_level=5, noise_threshold = -170 ,  window_size=99):
     #first outlier removal using threshold
-    idx = np.argwhere(10*np.log10(obj.noise_obj.signal_abs) > -138) #Threshold set to -138 dBm on the data without the FSPL correction
-    obj=obj[idx] #Basically deleting all the points where the moving average is below the threshold
+    idx = np.argwhere(10*np.log10(obj.noise_obj.signal_abs) > signal_threshold) #Threshold set to -138 dBm on the data without the FSPL correction
+    # print(f"idx signal {idx}")
+    obj=obj[idx.flatten()] #Basically deleting all the points where the signal is below the threshold
 
     #second outlier removal using peak detection and doppler shift
-    obj=remove_outlier(obj) #can be commented out if not wanted, it does not change that much
+    obj=remove_outlier(obj, peak_level) #can be commented out if not wanted, it does not change that much
+
+    # print(10*np.log10(obj.noise_obj.noise))
+    # Third outlier removal using noise power
+    # Flatten noise to 1D for threshold comparison
+    idx = np.argwhere((10 * np.log10(obj.noise_obj.noise.flatten())) < noise_threshold)
+
+    # print(f"idx noise {idx}")
+    obj=obj[idx.flatten()] #Basically deleting all the points where the noise is above the threshold
+    # print(f"Length of signal after noise threshold {obj.clean_sig_abs.shape}")
 
     # Remove outliers from the signal a bit like cheating, i got a better idea in Create X and Y file
     # window_size = 99
@@ -135,7 +145,7 @@ def prepmovavgfunc(obj, window_size=199):
 
     # Calculate the target
     clean_sig_abs = np.squeeze(obj.clean_sig_abs)
-    window_size = 99
+    # window_size = 99
     padded_signal = np.pad(clean_sig_abs, pad_width=window_size // 2, mode='reflect')
     moving_avg = np.convolve(padded_signal, np.ones(window_size) / window_size, mode='valid')
     # time_ax_avg = obj.time_ax[:len(moving_avg)]

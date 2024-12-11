@@ -428,3 +428,7 @@ if taking out the passes with the lowest values we avoid these
 but it also removes many of these
 ![alt text](screenshots/image-137.png)
 which are due to pointing error, and not due to the interference. 
+
+
+Why not remove all the points where the noise is too high?
+![alt text](screenshots/image-138.png)

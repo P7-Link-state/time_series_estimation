@@ -79,9 +79,9 @@ def produce_dataset(obj_act, test_split=0.1, pred_range=10):
                 #All the classic sheit
                 azi[q] =   obj_act[i].station_obj.azimuth[indices[0][-1]]
                 ele[q] =   obj_act[i].station_obj.elevation[indices[0][-1]]
-                pe[q] =    np.mean(10*np.log10(obj_act[i].pointing_error[indices[0]])*weights)
+                pe[q] =    np.mean(obj_act[i].pointing_error[last_second_indices[0]])
                 fspl[q] =  obj_act[i].station_obj.fspl[indices[0][-1]]
-                noise[q] = np.mean(np.log10(obj_act[i].noise_obj.noise[last_second_indices[0]]))
+                noise[q] = np.mean(10*np.log10(obj_act[i].noise_obj.noise[last_second_indices[0]]))
                 x_time[q] = obj_act[i].time_ax[indices[0][-1]]
                 measurement[q]= np.mean(obj_act[i].clean_sig_abs[last_second_indices[0]])
 
@@ -112,8 +112,8 @@ def produce_dataset(obj_act, test_split=0.1, pred_range=10):
                     poly_val[q] = np.mean(y_lin) #If there are not enough samples, just take the mean
                     
 
-
-                
+        
+        poly_val = np.clip(poly_val, 0, 40) 
 
         features = np.stack([
             azi   ,
