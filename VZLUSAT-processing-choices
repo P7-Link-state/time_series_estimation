@@ -432,3 +432,11 @@ which are due to pointing error, and not due to the interference.
 
 Why not remove all the points where the noise is too high?
 ![alt text](screenshots/image-138.png)
+
+I found out the doppler shift outlier detection is really good
+![alt text](screenshots/image-139.png)
+zoomed in: 
+![alt text](screenshots/image-140.png)
+
+can get even more precise, but this is really good
+

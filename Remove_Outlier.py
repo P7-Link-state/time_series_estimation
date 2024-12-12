@@ -50,7 +50,7 @@ def calculate_pointing_error(set_azimuth, set_elevation, azimuth, elevation):
 def remove_outlier(obj,peak_level=5):
     outlier_indices = []
     # valid_range_bins = int(2 * 11e3 / (250e3 / obj.noise_obj.fft_size))  # Total valid bins for the maximum doppler shift of Â±11kHz when sampling rate is 250kHz
-    signal_bandwidth =10e3 #evaluated from fft
+    signal_bandwidth =6e3 #evaluated from fft
     # print(f"Filled bins {np.round(signal_bandwidth/(250e3/obj.noise_obj.fft_size))}")
     valid_range_bins=np.round(signal_bandwidth/(250e3/obj.noise_obj.fft_size))
     
