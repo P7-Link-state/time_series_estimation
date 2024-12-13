@@ -145,7 +145,6 @@ def prepmovavgfunc(obj,signal_threshold=-138,   peak_level=5, noise_threshold = 
 
     # Calculate the target
     clean_sig_abs = np.squeeze(obj.clean_sig_abs)
-    # window_size = 99
     padded_signal = np.pad(clean_sig_abs, pad_width=window_size // 2, mode='reflect')
     moving_avg = np.convolve(padded_signal, np.ones(window_size) / window_size, mode='valid')
     # time_ax_avg = obj.time_ax[:len(moving_avg)]
